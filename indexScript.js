@@ -5,9 +5,9 @@ const wOutput = document.getElementById('weatherInfo');
 const nswURL = 'https://api.weather.gov/points/';
 var nswEnd, urlCall;
 var wInfo;
-const cageURL = 'https://api.opencagedata.com/geocode/v1/json?language=en&key=af889da021e446039ee3e086726a48bf&q=';
-var locationSearch, cageData, temp, tempLat, tempLng, lat, lng, name, forecast, temperature, windspeed, winddir;
-var input = document.getElementById('city');
+const cageURL = 'https://api.opencagedata.com/geocode/v1/json?countrycode=us&language=en&key=af889da021e446039ee3e086726a48bf&q=';
+var locationSearch, cageData, temp, tempLat, tempLng, lat, lng, name, forecast, temperature, windspeed, winddir, input;
+const searchBox = document.getElementById('city');
 
 //event listeners
 document.getElementById('nsw').addEventListener('click', readInput);
@@ -70,7 +70,7 @@ function getLocation(given) {
 		if (this.status == 200) {
 			cageData = JSON.parse(this.responseText);
 		}
-		console.log(cageData);
+		console.log('cage data: ', cageData);
 
 		//if more than 1 result, have user select which one
 		if (cageData.results.length > 1) {
@@ -84,6 +84,12 @@ function getLocation(given) {
 			}
 			input = '';
 		}
+		else if (cageData.results.length == 0) {
+			alert(
+				'something went wrong with the location api:\n' +
+					'Location api is free so location tracking/searching is not as accurate as google. Please keep this in mind if you get an error searching for your city',
+			);
+		}
 		else {
 			//else give data to weather api
 			lat = cageData.results[0].bounds.northeast.lat;
@@ -96,7 +102,7 @@ function getLocation(given) {
 }
 
 function readInput() {
-	input = input.value;
+	input = searchBox.value;
 	input = input.replace(/\s/g, '');
 	getLocation(input);
 }
