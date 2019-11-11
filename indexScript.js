@@ -1,49 +1,91 @@
-//variables
-let url = 'https://api.weather.gov/points/33.886823,-84.28956';
-const testing = 1 + 2 - 1;
+//https://api.weather.gov/points/33.886823,-84.28956/forecast
 
-// search
-$('#search-box').keydown(function(event) {
-	var keyCode = event.keyCode ? event.keyCode : event.which;
-	if (keyCode == 13) {
-		$('#search').trigger('click');
-	}
-});
-$('#search').click(function() {
-	searchData = $('#search-box').val();
-	preSearch = searchData;
-	if (searchData === '' || searchData === null) {
-		//log when nothing was input
-		console.log('nothing was input');
-		alert('You forgot to give us your input');
-	}
-	else {
-		//take input from search bar and input the results to google api
-		console.log('search Data: ', searchData);
-		console.log(url);
+// variables
+const wOutput = document.getElementById('weatherInfo');
+const nswURL = 'https://api.weather.gov/points/';
+var nswEnd, urlCall;
+var wInfo;
+const cageURL = 'https://api.opencagedata.com/geocode/v1/json?language=en&key=af889da021e446039ee3e086726a48bf&q=';
+var input, locationSearch, cageData, temp, lat, lng, name, forecast, temperature, windspeed, winddir;
+
+//event listeners
+document.getElementById('nsw').addEventListener('click', getLocation);
+document.getElementById('city').addEventListener('keyup', function(event) {
+	if (event.keyCode === 13) {
+		document.getElementById('nsw').click();
 	}
 });
 
-$.ajax({
-	url: bookURL + searchData + pageLenURL + pageIndex, //add input to end of api url
-	dataType: 'JSON',
-	success: function(res) {
-		console.log(res);
-		if (res.totalItem === 0) {
-			//if no results inform user
-			alert('looks like there nothing with that name \nTry Again');
+// *************************************|| National weather service api ||*******************************************
+function retriveNSW(search) {
+	urlCall = nswURL + search + '/forecast';
+	console.log('nsw url: ', urlCall);
+	const nsw = new XMLHttpRequest();
+	nsw.open('GET', urlCall, true);
+
+	nsw.onload = function() {
+		console.log('nsw status: ', this.status);
+		//if the data is retrieved
+		if (this.status == 200) {
+			console.log('NSW good');
+			// console.log(JSON.parse(this.responseText));
+			wInfo = JSON.parse(this.responseText);
+
+			//display the weather forecast
+			for (var i = 0; i < wInfo.properties.periods.length; i++) {
+				name = wInfo.properties.periods[i].name;
+				forecast = wInfo.properties.periods[i].shortForecast;
+				temperature = wInfo.properties.periods[i].temperature;
+				windspeed = wInfo.properties.periods[i].windSpeed;
+				winddir = wInfo.properties.periods[i].windDirection;
+				wOutput.innerHTML += `<div>
+                        ${name} forecast: ${forecast} @ ${temperature} wind: ${windspeed} ${winddir}
+                    </div>
+                `;
+			}
+		}
+		//if the data is not found
+		if (this.status == 404) {
+			alert('this was not found');
+		}
+	};
+	nsw.send();
+}
+
+// ********************************************|| Getting location ||***************************************************
+//get city location
+function getLocation() {
+	//get input from user
+	console.log('inside the function');
+	input = document.getElementById('city').value;
+	locationSearch = cageURL + input;
+
+	//call api
+	const openCage = new XMLHttpRequest();
+	openCage.open('GET', locationSearch, true);
+	openCage.onload = function() {
+		//return status is good take the data
+		if (this.status == 200) {
+			cageData = JSON.parse(this.responseText);
+		}
+		console.log(cageData);
+
+		//if more than 1 result, have user select which one
+		if (cageData.results.length > 1) {
+			wOutput.innerHTML = `<div>Sorry did you mean:</div><ol>`;
+			for (var i = 0; i < cageData.results.length; i++) {
+				temp = JSON.stringify(cageData.results[i].formatted);
+				wOutput.innerHTML += `<li>${temp}</li>`;
+			}
+			wOutput.innerHTML += `</ol>`;
 		}
 		else {
-			// show the resutls to the user
-			$('.results').css('visibility', 'visible');
-			$('.searchBanner').css('visibility', 'visible');
-			displayResults(res);
-			pageCount.innerHTML = 'Current Page ' + String(pageNum);
+			//else give data to weather api
+			lat = cageData.results[0].bounds.northeast.lat;
+			lng = cageData.results[0].bounds.northeast.lng;
+			nswEnd = lat + ',' + lng;
+			retriveNSW(nswEnd);
 		}
-	},
-
-	//alert the user if the api doesnt work
-	error: function() {
-		alert('Something went wrong');
-	},
-});
+	};
+	openCage.send();
+}

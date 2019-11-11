@@ -13,74 +13,11 @@
     <h1>Weather Station</h1>
     <p>this is a test</p>
     <!-- search -->
-    <div id="searchContain"><input id="search-box" type="text" placeholder="City, State"></div></br>
-    <div id="inputContain"><button id="search" onclick="">Search</button></div>
-    
+    <input type="text" name="city" id="city" placeholder="enter city name">
+    <button id="nsw">get weather</button>
+
     <!-- results -->
-    <div id="results"></div>
+    <div id="weatherInfo"></div>
 </body>
-
-<script src='../jquery-3.4.1.js'></script>;
-<script>
-    //variables
-    let url = 'https://api.weather.gov/points/33.886823,-84.28956/forecast';
-    const outputArea = document.getElementById('results');
-
-    // search
-    $('#search-box').keydown(function(event) {
-        var keyCode = event.keyCode ? event.keyCode : event.which;
-        if (keyCode == 13) {
-            $('#search').trigger('click');
-        }
-    });
-    $('#search').click(function() {
-        searchData = $('#search-box').val();
-        preSearch = searchData;
-        if (searchData === '' || searchData === null) {
-            //log when nothing was input
-            console.log('nothing was input');
-            alert('You forgot to give us your input');
-        }
-        else {
-            //take input from search bar and input the results to google api
-            console.log('search Data: ', searchData);
-            console.log("url: ",url);
-        }
-    });
-
-    $.ajax({
-        url: url,
-        dataType: 'JSON',
-        success: function(data) {
-            console.log("data: ",data);
-            if (data.totalItem === 0) {
-                //if no results inform user
-                alert('looks like there nothing with that name \nTry Again');
-            }
-            else {
-                // show the resutls to the user
-                console.log("success");
-                // outputArea.innerHTML += JSON.parse(this.data);
-                displayResults(data);
-            }
-        },
-        //alert the user if the api doesnt work
-        error: function() {
-            alert('Something went wrong');
-        },
-    });
-
-    function displayResults(input){
-        var name, forecast, temperature, windspeed, winddir
-        for(var i=0; i<input.properties.periods.length; i++){
-            name = input.properties.periods[i].name;
-            forecast = input.properties.periods[i].shortForecast;
-            temperature = input.properties.periods[i].temperature;
-            windspeed = input.properties.periods[i].windSpeed;
-            winddir = input.properties.periods[i].windDirection;
-            outputArea.innerHTML += `<div>
-                ${name} forecast: ${forecast} @ ${temperature} wind: ${windspeed} ${winddir}`;
-        }
-    }
-</script>
+<script src="indexScript.js"></script>
 </html>
