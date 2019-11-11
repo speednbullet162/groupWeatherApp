@@ -29,18 +29,19 @@ function retrieveNSW(search) {
 		//if the data is retrieved
 		if (this.status == 200) {
 			console.log('NSW good');
-			// console.log(JSON.parse(this.responseText));
+			console.log('weather information: ', JSON.parse(this.responseText));
 			wInfo = JSON.parse(this.responseText);
 
 			//display the weather forecast
 			wOutput.innerHTML = '';
 			for (var i = 0; i < wInfo.properties.periods.length; i++) {
+				icon = wInfo.properties.periods[i].icon;
 				name = wInfo.properties.periods[i].name;
 				forecast = wInfo.properties.periods[i].shortForecast;
 				temperature = wInfo.properties.periods[i].temperature;
 				windspeed = wInfo.properties.periods[i].windSpeed;
 				winddir = wInfo.properties.periods[i].windDirection;
-				wOutput.innerHTML += `<div>
+				wOutput.innerHTML += `<div><img src='${icon}' alt='Weather Icon'>
                         ${name} forecast: ${forecast} @ ${temperature} wind: ${windspeed} ${winddir}
                     </div>
                 `;
