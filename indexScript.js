@@ -6,10 +6,11 @@ const nswURL = 'https://api.weather.gov/points/';
 var nswEnd, urlCall;
 var wInfo;
 const cageURL = 'https://api.opencagedata.com/geocode/v1/json?language=en&key=af889da021e446039ee3e086726a48bf&q=';
-var input, locationSearch, cageData, temp, lat, lng, name, forecast, temperature, windspeed, winddir;
+var locationSearch, cageData, temp, tempLat, tempLng, lat, lng, name, forecast, temperature, windspeed, winddir;
+var input = document.getElementById('city');
 
 //event listeners
-document.getElementById('nsw').addEventListener('click', getLocation);
+document.getElementById('nsw').addEventListener('click', readInput);
 document.getElementById('city').addEventListener('keyup', function(event) {
 	if (event.keyCode === 13) {
 		document.getElementById('nsw').click();
@@ -17,7 +18,7 @@ document.getElementById('city').addEventListener('keyup', function(event) {
 });
 
 // *************************************|| National weather service api ||*******************************************
-function retriveNSW(search) {
+function retrieveNSW(search) {
 	urlCall = nswURL + search + '/forecast';
 	console.log('nsw url: ', urlCall);
 	const nsw = new XMLHttpRequest();
@@ -32,6 +33,7 @@ function retriveNSW(search) {
 			wInfo = JSON.parse(this.responseText);
 
 			//display the weather forecast
+			wOutput.innerHTML = '';
 			for (var i = 0; i < wInfo.properties.periods.length; i++) {
 				name = wInfo.properties.periods[i].name;
 				forecast = wInfo.properties.periods[i].shortForecast;
@@ -54,11 +56,11 @@ function retriveNSW(search) {
 
 // ********************************************|| Getting location ||***************************************************
 //get city location
-function getLocation() {
+function getLocation(given) {
 	//get input from user
-	console.log('inside the function');
-	input = document.getElementById('city').value;
-	locationSearch = cageURL + input;
+	if (input != '') {
+		locationSearch = cageURL + input;
+	}
 
 	//call api
 	const openCage = new XMLHttpRequest();
@@ -72,20 +74,29 @@ function getLocation() {
 
 		//if more than 1 result, have user select which one
 		if (cageData.results.length > 1) {
-			wOutput.innerHTML = `<div>Sorry did you mean:</div><ol>`;
+			wOutput.innerHTML = `<div>Sorry did you mean:</div>`;
 			for (var i = 0; i < cageData.results.length; i++) {
 				temp = JSON.stringify(cageData.results[i].formatted);
-				wOutput.innerHTML += `<li>${temp}</li>`;
+				tempLat = cageData.results[i].geometry.lat;
+				tempLng = cageData.results[i].geometry.lng;
+				tempLocation = tempLat + ',' + tempLng;
+				wOutput.innerHTML += `<li><button id='didUMean' value='${tempLocation}' onclick='retrieveNSW(this.value)'>${temp}</button></li>`;
 			}
-			wOutput.innerHTML += `</ol>`;
+			input = '';
 		}
 		else {
 			//else give data to weather api
 			lat = cageData.results[0].bounds.northeast.lat;
 			lng = cageData.results[0].bounds.northeast.lng;
 			nswEnd = lat + ',' + lng;
-			retriveNSW(nswEnd);
+			retrieveNSW(nswEnd);
 		}
 	};
 	openCage.send();
+}
+
+function readInput() {
+	input = input.value;
+	input = input.replace(/\s/g, '');
+	getLocation(input);
 }
