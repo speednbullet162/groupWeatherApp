@@ -13,7 +13,7 @@ const searchBox = document.getElementById('city');
 const mapURL = 'https://tile.openweathermap.org/map/';
 const mapKey = '04a196545fad87f2f48af41914dfdeb1';
 const mOutput = document.getElementById('map');
-var layer, zoom, xCord, yCord;
+var layer, zoom, xMer, yMer, xCord, yCord;
 
 //event listeners
 document.getElementById('nsw').addEventListener('click', readInput);
@@ -27,6 +27,7 @@ document.getElementById('city').addEventListener('keyup', function(event) {
 //https://api.weather.gov/points/{latitude},{longitude}/forecast
 
 function retrieveNSW(search) {
+	console.log('%c retrieve nation weather service called', 'color: #a8ffff');
 	urlCall = nswURL + search + '/forecast';
 	console.log('nsw url: ', urlCall);
 	const nsw = new XMLHttpRequest();
@@ -34,8 +35,10 @@ function retrieveNSW(search) {
 
 	nsw.onload = function() {
 		//if the data is retrieved
+		console.log('nsw search points: ', search);
+		console.log('nsw status: ', this.status);
 		if (this.status == 200) {
-			console.log('weather information: ', JSON.parse(this.responseText));
+			console.log('National weather information: ', JSON.parse(this.responseText));
 			wInfo = JSON.parse(this.responseText);
 
 			//display the weather forecast
@@ -56,10 +59,11 @@ function retrieveNSW(search) {
                     </div>
                 `;
 			}
+			console.log('%c weather information completed', 'color: #a8ffff');
 		}
 		//if the data is not found
 		if (this.status == 404) {
-			alert('this location was not found in the weather database');
+			alert('National Weather Service: \nthis location was not found in the weather database');
 		}
 	};
 	nsw.send();
@@ -70,9 +74,10 @@ function retrieveNSW(search) {
 
 //get city location
 function getLocation(given) {
+	console.log('%c open cage get location called', 'color: #a8ffff');
 	//get input from user
 	if (input != '') {
-		locationSearch = cageURL + input;
+		locationSearch = cageURL + given;
 		console.log('location url: ', locationSearch);
 	}
 
@@ -101,6 +106,7 @@ function getLocation(given) {
 				`;
 			}
 			input = '';
+			console.log('%c did you mean complete', 'color: #a8ffff');
 		}
 		else if (cageData.results.length == 0) {
 			alert(
@@ -112,9 +118,14 @@ function getLocation(given) {
 			//else give data to weather api
 			lat = cageData.results[0].bounds.northeast.lat;
 			lng = cageData.results[0].bounds.northeast.lng;
+			xMer = cageData.results[0].annotations.Mercator.x;
+			yMer = cageData.results[0].annotations.Mercator.y;
+			console.log('lat, lng: ', lat, ',', lng);
+			console.log('x, y mercator', xMer, ',', yMer);
 			nswEnd = lat + ',' + lng;
 			retrieveNSW(nswEnd);
-			// getMap();
+			getMap();
+			console.log('%c finished passing location information', 'color: #a8ffff');
 		}
 	};
 	openCage.send();
@@ -123,29 +134,37 @@ function getLocation(given) {
 // ********************************************|| Open Weather Map api ||***************************************************
 //https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={api_key}
 
-// function getMap() {
-// 	console.log('get map function called');
-// 	xCord = lat;
-// 	yCord = lng;
-// 	zoom = 10;
-// 	layer = 'temp_new';
-// 	mapCall = mapURL + layer + '/' + zoom + '/' + xCord + '/' + yCord + '.png?appid=' + mapKey;
-// 	console.log('map url: ', mapCall);
-// 	const openWeather = new XMLHttpRequest();
-// 	openWeather.open('GET', mapCall, true);
-// 	openWeather.onload = function() {
-// 		console.log('openweather status: ', this.status);
-// 		if (this.status == 200) {
-// 			console.log('openweather response: ', this.responseText);
-// 			mOutput = `<div>${this.responseText} :::::::: ${this.response}</div>`;
-// 		}
-// 	};
-// 	openWeather.send();
-// }
+function getMap() {
+	console.log('%c get map function called', 'color: #a8ffff');
+	zoom = 10;
+	xCord = 256 / 2 * Math.PI * Math.pow(2, zoom) * (xMer + Math.PI) * 256.0; //{pixels}
+	yCord = 256 / 2 * Math.PI * Math.pow(2, zoom) * (Math.PI - Math.log(Math.tan(Math.PI / 4 + yMer / 2))) * 256.0; //{pixels}
+	console.log('x cord: ', xCord);
+	console.log('y cord: ', yCord);
+
+	layer = 'temp_new';
+	mapCall = mapURL + layer + '/' + zoom + '/' + xCord + '/' + yCord + '.png?appid=' + mapKey;
+	console.log('map url: ', mapCall);
+	const openWeather = new XMLHttpRequest();
+	openWeather.open('GET', mapCall, true);
+	openWeather.onload = function() {
+		console.log('openweather status: ', this.status);
+		if (this.status == 200) {
+			// console.log('openweather responsetext: ', this.responseText);
+			// console.log('openweather response: ', this.response);
+			mOutput.innerHTML = `<div><img src='${this.responseText}'>response text ${this.responseText} :::::::: response ${this
+				.response}</div>`;
+			console.log('%c weather map call complete', 'color: #a8ffff');
+		}
+	};
+	openWeather.send();
+}
 
 function readInput() {
 	input = searchBox.value;
 	//remove space after comma in search
 	input = input.replace(',/s/g', ',');
+	searchBox.value = '';
 	getLocation(input);
+	console.log('%c finished reading input', 'color: #a8ffff');
 }
