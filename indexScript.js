@@ -1,13 +1,19 @@
-//https://api.weather.gov/points/33.886823,-84.28956/forecast
+//https://api.weather.gov/points/{latitude},{longitude}/forecast
+// https://api.opencagedata.com/geocode/v1/json?countrycode=us&language=en&key=af889da021e446039ee3e086726a48bf&q={string}
+// https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={api_key}
 
 // variables
-const wOutput = document.getElementById('weatherInfo');
+const wOutput = document.getElementById('weatherInfo-container');
 const nswURL = 'https://api.weather.gov/points/';
 var nswEnd, urlCall;
 var wInfo;
 const cageURL = 'https://api.opencagedata.com/geocode/v1/json?countrycode=us&language=en&key=af889da021e446039ee3e086726a48bf&q=';
-var locationSearch, cageData, temp, tempLat, tempLng, lat, lng, name, forecast, temperature, windspeed, winddir, input;
+var locationSearch, cageData, temp, tempLat, tempLng, lat, lng, icon, name, forecast, temperature, windspeed, winddir, input;
 const searchBox = document.getElementById('city');
+const mapURL = 'https://tile.openweathermap.org/map/';
+const mapKey = '04a196545fad87f2f48af41914dfdeb1';
+const mOutput = document.getElementById('map');
+var layer, zoom, xCord, yCord;
 
 //event listeners
 document.getElementById('nsw').addEventListener('click', readInput);
@@ -18,6 +24,8 @@ document.getElementById('city').addEventListener('keyup', function(event) {
 });
 
 // *************************************|| National weather service api ||*******************************************
+//https://api.weather.gov/points/{latitude},{longitude}/forecast
+
 function retrieveNSW(search) {
 	urlCall = nswURL + search + '/forecast';
 	console.log('nsw url: ', urlCall);
@@ -25,10 +33,8 @@ function retrieveNSW(search) {
 	nsw.open('GET', urlCall, true);
 
 	nsw.onload = function() {
-		console.log('nsw status: ', this.status);
 		//if the data is retrieved
 		if (this.status == 200) {
-			console.log('NSW good');
 			console.log('weather information: ', JSON.parse(this.responseText));
 			wInfo = JSON.parse(this.responseText);
 
@@ -41,26 +47,33 @@ function retrieveNSW(search) {
 				temperature = wInfo.properties.periods[i].temperature;
 				windspeed = wInfo.properties.periods[i].windSpeed;
 				winddir = wInfo.properties.periods[i].windDirection;
-				wOutput.innerHTML += `<div><img src='${icon}' alt='Weather Icon'>
-                        ${name} forecast: ${forecast} @ ${temperature} wind: ${windspeed} ${winddir}
+				wOutput.innerHTML += `<div class='weatherInfo'>
+						<img src='${icon}' alt='Weather Icon' style="display: block; margin: auto;">
+						<h2 style="text-align: center;">${name} Forecast</h2>
+						<p>Conditions: ${forecast}</p>
+						<p>Temperature: ${temperature}&#176;F</P>
+						<p>Wind: ${windspeed} ${winddir}</p>
                     </div>
                 `;
 			}
 		}
 		//if the data is not found
 		if (this.status == 404) {
-			alert('this was not found');
+			alert('this location was not found in the weather database');
 		}
 	};
 	nsw.send();
 }
 
-// ********************************************|| Getting location ||***************************************************
+// ********************************************|| Open Cage Geocoding api ||***************************************************
+// https://api.opencagedata.com/geocode/v1/json?countrycode=us&language=en&key={apikey}&={string}
+
 //get city location
 function getLocation(given) {
 	//get input from user
 	if (input != '') {
 		locationSearch = cageURL + input;
+		console.log('location url: ', locationSearch);
 	}
 
 	//call api
@@ -75,13 +88,17 @@ function getLocation(given) {
 
 		//if more than 1 result, have user select which one
 		if (cageData.results.length > 1) {
-			wOutput.innerHTML = `<div>Sorry did you mean:</div>`;
+			wOutput.innerHTML = `<div class='center'>Sorry did you mean:</div>`;
 			for (var i = 0; i < cageData.results.length; i++) {
 				temp = JSON.stringify(cageData.results[i].formatted);
 				tempLat = cageData.results[i].geometry.lat;
 				tempLng = cageData.results[i].geometry.lng;
 				tempLocation = tempLat + ',' + tempLng;
-				wOutput.innerHTML += `<li><button id='didUMean' value='${tempLocation}' onclick='retrieveNSW(this.value)'>${temp}</button></li>`;
+				wOutput.innerHTML += `
+				<div class='did-contain'>
+					<button class='didButton' id='didUMean' value='${tempLocation}' onclick='retrieveNSW(this.value)'>${temp}</button>
+				</div>
+				`;
 			}
 			input = '';
 		}
@@ -97,13 +114,38 @@ function getLocation(given) {
 			lng = cageData.results[0].bounds.northeast.lng;
 			nswEnd = lat + ',' + lng;
 			retrieveNSW(nswEnd);
+			// getMap();
 		}
 	};
 	openCage.send();
 }
 
+// ********************************************|| Open Weather Map api ||***************************************************
+//https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={api_key}
+
+// function getMap() {
+// 	console.log('get map function called');
+// 	xCord = lat;
+// 	yCord = lng;
+// 	zoom = 10;
+// 	layer = 'temp_new';
+// 	mapCall = mapURL + layer + '/' + zoom + '/' + xCord + '/' + yCord + '.png?appid=' + mapKey;
+// 	console.log('map url: ', mapCall);
+// 	const openWeather = new XMLHttpRequest();
+// 	openWeather.open('GET', mapCall, true);
+// 	openWeather.onload = function() {
+// 		console.log('openweather status: ', this.status);
+// 		if (this.status == 200) {
+// 			console.log('openweather response: ', this.responseText);
+// 			mOutput = `<div>${this.responseText} :::::::: ${this.response}</div>`;
+// 		}
+// 	};
+// 	openWeather.send();
+// }
+
 function readInput() {
 	input = searchBox.value;
-	input = input.replace(/\s/g, '');
+	//remove space after comma in search
+	input = input.replace(',/s/g', ',');
 	getLocation(input);
 }

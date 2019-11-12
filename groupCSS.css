@@ -1,6 +1,123 @@
 body {
-	background-color: aliceblue;
+	background-color: #87a5ff;
+	font-family: 'Montserrat', sans-serif;
 }
-#didUMean {
-	list-style-type: none;
+p {
+	font-family: 'Roboto Condensed', sans-serif;
+}
+h1 {
+	text-align: center;
+	font-size: 500%;
+}
+.instructions {
+	text-align: center;
+	font-size: 150%;
+}
+#search-contain {
+	width: 75%;
+	height: 100%;
+	margin: 5px;
+	display: flex;
+	background-color: white;
+	margin-left: auto;
+	margin-right: auto;
+	justify-content: center;
+	align-items: center;
+	border-radius: 20px;
+	border: none;
+}
+#city {
+	display: block;
+	width: 95%;
+	font-size: 150%;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: transparent;
+	border: none;
+}
+#city:focus {
+	outline: #cbff87;
+	background-color: transparent;
+}
+#inputContain {
+	width: 25%;
+	height: 100%;
+	display: flex;
+	background-color: white;
+	margin-left: auto;
+	margin-right: auto;
+	justify-content: center;
+	align-items: center;
+	border-radius: 20px;
+	border: 1px cyan;
+}
+#nsw {
+	display: block;
+	width: 100%;
+	font-size: 150%;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: transparent;
+	border: none;
+}
+.did-contain {
+	display: flex;
+	background-color: transparent;
+	width: 100%;
+	margin: 5px auto 5px auto;
+	justify-content: center;
+	flex-direction: column;
+	border-radius: 20px;
+}
+.didButton {
+	display: block;
+	width: 60%;
+	font-size: 120%;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: white;
+	border: none;
+	border-radius: 20px;
+}
+.weatherInfo-container {
+	margin-top: 5px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	/* background-color: lightgray; */
+}
+.weatherInfo {
+	flex-basis: 12%;
+	margin: 2px;
+	padding: 5px;
+	border-radius: 20px;
+	border: 3px solid #ff9f87;
+	background-color: #7afff8;
+}
+.center {
+	width: 100%;
+	display: block;
+	margin: auto;
+	text-align: center;
+}
+@media only screen and (max-width: 700px) {
+	.weatherInfo-container {
+		flex-direction: column;
+	}
+	.weatherInfo {
+		flex-basis: 80%;
+	}
+}
+@media only screen and (min-width: 700px) and (max-width: 950px) {
+	.weatherInfo {
+		flex-basis: 45%;
+	}
+}
+@media only screen and (min-width: 950px) and (max-width: 1400px) {
+	.weatherInfo {
+		flex-basis: 20%;
+	}
 }
