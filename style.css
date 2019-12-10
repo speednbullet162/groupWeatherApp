@@ -1471,16 +1471,16 @@ h1, h2, h3, h4, h5,
 
 .form-search-wrap {
   background: #fff;
-  padding: 30px !important;
+  padding: 20px !important;
   -webkit-box-shadow: 0 2px 30px -5px rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 30px -5px rgba(0, 0, 0, 0.2); }
   .form-search-wrap .form-control {
     border: none; }
     @media (max-width: 1199.98px) {
       .form-search-wrap .form-control {
-        height: 55px; } }
+        height: 75px; } }
   .form-search-wrap .btn {
-    border-radius: 30px;
+    border-radius: 80px;
     padding: 10px 30px; }
     @media (max-width: 1199.98px) {
       .form-search-wrap .btn {
@@ -1800,19 +1800,7 @@ h1, h2, h3, h4, h5,
 
 
 
-          #search-contain {
-            width: 75%;
-            height: 100%;
-            margin: 5px;
-            display: flex;
-            background-color: white;
-            margin-left: auto;
-            margin-right: auto;
-            justify-content: center;
-            align-items: center;
-            border-radius: 20px;
-            border: none;
-          }
+          
           #city {
             display: block;
             width: 95%;
