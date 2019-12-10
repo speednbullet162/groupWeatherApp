@@ -2,18 +2,18 @@
 // https://api.opencagedata.com/geocode/v1/json?countrycode=us&language=en&key=af889da021e446039ee3e086726a48bf&q={string}
 // https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={api_key}
 
-// variables
+// letiables
 const wOutput = document.getElementById('weatherInfo-container');
 const nswURL = 'https://api.weather.gov/points/';
-var nswEnd, urlCall;
-var wInfo;
+let nswEnd, urlCall;
+let wInfo;
 const cageURL = 'https://api.opencagedata.com/geocode/v1/json?countrycode=us&language=en&key=af889da021e446039ee3e086726a48bf&q=';
-var locationSearch, cageData, temp, tempLat, tempLng, lat, lng, icon, name, forecast, temperature, windspeed, winddir, input;
+let locationSearch, cageData, temp, tempLat, tempLng, lat, lng, icon, name, forecast, temperature, windspeed, winddir, input;
 const searchBox = document.getElementById('city');
 const mapURL = 'https://tile.openweathermap.org/map/';
 const mapKey = '04a196545fad87f2f48af41914dfdeb1';
 const mOutput = document.getElementById('map');
-var layer, zoom, xMer, yMer, xCord, yCord;
+let layer, zoom, xCord, yCord;
 
 //event listeners
 document.getElementById('nsw').addEventListener('click', readInput);
@@ -43,7 +43,7 @@ function retrieveNSW(search) {
 
 			//display the weather forecast
 			wOutput.innerHTML = '';
-			for (var i = 0; i < wInfo.properties.periods.length; i++) {
+			for (let i = 0; i < wInfo.properties.periods.length; i++) {
 				icon = wInfo.properties.periods[i].icon;
 				name = wInfo.properties.periods[i].name;
 				forecast = wInfo.properties.periods[i].shortForecast;
@@ -84,17 +84,18 @@ function getLocation(given) {
 	//call api
 	const openCage = new XMLHttpRequest();
 	openCage.open('GET', locationSearch, true);
+	// body > div.site-section > div
+	
 	openCage.onload = function() {
 		//return status is good take the data
 		if (this.status == 200) {
 			cageData = JSON.parse(this.responseText);
 		}
 		console.log('cage data: ', cageData);
-
 		//if more than 1 result, have user select which one
 		if (cageData.results.length > 1) {
 			wOutput.innerHTML = `<div class='center'>Sorry did you mean:</div>`;
-			for (var i = 0; i < cageData.results.length; i++) {
+			for (let i = 0; i < cageData.results.length; i++) {
 				temp = JSON.stringify(cageData.results[i].formatted);
 				tempLat = cageData.results[i].geometry.lat;
 				tempLng = cageData.results[i].geometry.lng;
@@ -164,7 +165,9 @@ function readInput() {
 	input = searchBox.value;
 	//remove space after comma in search
 	input = input.replace(',/s/g', ',');
-	searchBox.value = '';
+	wOutput.scrollIntoView({behavior: "smooth", block: "nearest", inline: "start"});
+	let forecastTitleUpdate = document.getElementById('forecast_title');
+	forecastTitleUpdate.innerHTML = 'Weather Forecast for ' + input;
 	getLocation(input);
 	console.log('%c finished reading input', 'color: #a8ffff');
 }
