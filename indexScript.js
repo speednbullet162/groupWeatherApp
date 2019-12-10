@@ -85,7 +85,7 @@ function getLocation(given) {
 	const openCage = new XMLHttpRequest();
 	openCage.open('GET', locationSearch, true);
 	// body > div.site-section > div
-	
+
 	openCage.onload = function() {
 		//return status is good take the data
 		if (this.status == 200) {
@@ -125,7 +125,7 @@ function getLocation(given) {
 			console.log('x, y mercator', xMer, ',', yMer);
 			nswEnd = lat + ',' + lng;
 			retrieveNSW(nswEnd);
-			getMap();
+			// getMap();
 			console.log('%c finished passing location information', 'color: #a8ffff');
 		}
 	};
@@ -135,37 +135,37 @@ function getLocation(given) {
 // ********************************************|| Open Weather Map api ||***************************************************
 //https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={api_key}
 
-function getMap() {
-	console.log('%c get map function called', 'color: #a8ffff');
-	zoom = 10;
-	xCord = 256 / 2 * Math.PI * Math.pow(2, zoom) * (xMer + Math.PI) * 256.0; //{pixels}
-	yCord = 256 / 2 * Math.PI * Math.pow(2, zoom) * (Math.PI - Math.log(Math.tan(Math.PI / 4 + yMer / 2))) * 256.0; //{pixels}
-	console.log('x cord: ', xCord);
-	console.log('y cord: ', yCord);
+// function getMap() {
+// 	console.log('%c get map function called', 'color: #a8ffff');
+// 	zoom = 10;
+// 	xCord = 256 / 2 * Math.PI * Math.pow(2, zoom) * (xMer + Math.PI) * 256.0; //{pixels}
+// 	yCord = 256 / 2 * Math.PI * Math.pow(2, zoom) * (Math.PI - Math.log(Math.tan(Math.PI / 4 + yMer / 2))) * 256.0; //{pixels}
+// 	console.log('x cord: ', xCord);
+// 	console.log('y cord: ', yCord);
 
-	layer = 'temp_new';
-	mapCall = mapURL + layer + '/' + zoom + '/' + xCord + '/' + yCord + '.png?appid=' + mapKey;
-	console.log('map url: ', mapCall);
-	const openWeather = new XMLHttpRequest();
-	openWeather.open('GET', mapCall, true);
-	openWeather.onload = function() {
-		console.log('openweather status: ', this.status);
-		if (this.status == 200) {
-			// console.log('openweather responsetext: ', this.responseText);
-			// console.log('openweather response: ', this.response);
-			mOutput.innerHTML = `<div><img src='${this.responseText}'>response text ${this.responseText} :::::::: response ${this
-				.response}</div>`;
-			console.log('%c weather map call complete', 'color: #a8ffff');
-		}
-	};
-	openWeather.send();
-}
+// 	layer = 'temp_new';
+// 	mapCall = mapURL + layer + '/' + zoom + '/' + xCord + '/' + yCord + '.png?appid=' + mapKey;
+// 	console.log('map url: ', mapCall);
+// 	const openWeather = new XMLHttpRequest();
+// 	openWeather.open('GET', mapCall, true);
+// 	openWeather.onload = function() {
+// 		console.log('openweather status: ', this.status);
+// 		if (this.status == 200) {
+// 			// console.log('openweather responsetext: ', this.responseText);
+// 			// console.log('openweather response: ', this.response);
+// 			mOutput.innerHTML = `<div><img src='${this.responseText}'>response text ${this.responseText} :::::::: response ${this
+// 				.response}</div>`;
+// 			console.log('%c weather map call complete', 'color: #a8ffff');
+// 		}
+// 	};
+// 	openWeather.send();
+// }
 
 function readInput() {
 	input = searchBox.value;
 	//remove space after comma in search
 	input = input.replace(',/s/g', ',');
-	wOutput.scrollIntoView({behavior: "smooth", block: "nearest", inline: "start"});
+	wOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 	let forecastTitleUpdate = document.getElementById('forecast_title');
 	forecastTitleUpdate.innerHTML = 'Weather Forecast for ' + input;
 	getLocation(input);
